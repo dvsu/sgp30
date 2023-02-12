@@ -2,7 +2,7 @@ import sys
 from math import exp
 from dataclasses import asdict
 from time import sleep, time
-from typing import Final, List, Optional
+from typing import Final, Optional
 from traceback import print_exc
 from smbus2 import SMBus
 from sgp30.models import Measurement, SensorData, SensorInfo
@@ -24,7 +24,7 @@ CMD_GET_TVOC_INCEPTIVE_BASELINE: Final[int] = 0xB3
 CMD_SET_TVOC_BASELINE: Final[int] = 0x77
 CMD_SOFT_RESET: Final[int] = 0x06
 
-CMD_GET_SERIAL_ID: Final[List[int]] = [0x36, 0x82]
+CMD_GET_SERIAL_ID: Final[list[int]] = [0x36, 0x82]
 
 T_IDLE: Final[float] = 0.001  # recommended 0.05ms, but given 1ms
 
@@ -56,10 +56,10 @@ class SGP30:
 
         self.iaq_init()
 
-    def crc_check(self, data: list, checksum: int) -> bool:
+    def crc_check(self, data: list[int], checksum: int) -> bool:
         return self.crc_calc(data) == checksum
 
-    def crc_calc(self, data: list) -> int:
+    def crc_calc(self, data: list[int]) -> int:
         crc = 0xFF
         for i in range(2):
             crc ^= data[i]
@@ -101,7 +101,7 @@ class SGP30:
         else:
             return None
 
-    def calculate_abs_humidity(self, temp: float, humi: float) -> List[int]:
+    def calculate_abs_humidity(self, temp: float, humi: float) -> list[int]:
         abs_humi = 216.7 * (((humi/100) * 6.112 * exp((17.62*temp)/(243.12+temp))) / (273.15+temp))
         abs_humi_hex = "{:04x}".format(int(abs_humi * 256))
         return [int(abs_humi_hex[:2], 16), int(abs_humi_hex[2:], 16)]
