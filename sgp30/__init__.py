@@ -1,0 +1,1 @@
+from sgp30.sgp30 import SGP30 as SGP30
