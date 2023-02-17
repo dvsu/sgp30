@@ -6,7 +6,7 @@ from time import sleep, time
 from typing import Final, Optional
 from traceback import print_exc
 from smbus2 import SMBus
-from sgp30.models import Measurement, SensorData, SensorInfo, Sensor
+from dependencies.models import Measurement, SensorData, SensorInfo, Sensor
 
 
 I2C_ADDRESS: Final[int] = 0x58
