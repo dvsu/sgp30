@@ -20,3 +20,8 @@ class Measurement:
 @dataclass
 class SensorData:
     measurements: List[Measurement]
+
+
+@dataclass
+class Sensor(SensorInfo, SensorData):
+    timestamp: str

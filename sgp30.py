@@ -1,11 +1,12 @@
 import sys
 from math import exp
+from datetime import datetime
 from dataclasses import asdict
 from time import sleep, time
 from typing import Final, Optional
 from traceback import print_exc
 from smbus2 import SMBus
-from sgp30.models import Measurement, SensorData, SensorInfo
+from sgp30.models import Measurement, SensorData, SensorInfo, Sensor
 
 
 I2C_ADDRESS: Final[int] = 0x58
@@ -55,6 +56,7 @@ class SGP30:
             sys.exit(1)
 
         self.iaq_init()
+        self.__sensor_info = self.get_sensor_info()
 
     def crc_check(self, data: list[int], checksum: int) -> bool:
         return self.crc_calc(data) == checksum
@@ -131,7 +133,7 @@ class SGP30:
         serial = self.get_serial_id()
         product_type = self.get_product_type()
         product_version = self.get_product_version()
-        return SensorInfo(SENSOR_MAKER, product_type, serial, product_version)
+        return SensorInfo(maker=SENSOR_MAKER, model=product_type, serial=serial, version=product_version)
 
     def get_measurement(self, as_dict: bool = False, temp: float = 0.0, humi: float = 0.0) -> SensorData:
         if (time() - self.__tracker < 1):
@@ -155,6 +157,19 @@ class SGP30:
             return asdict(measured)
 
         return measured
+
+    def get_full_reading(self, as_dict: bool = False) -> Sensor:
+        sensor = Sensor(maker=self.__sensor_info.maker,
+                        model=self.__sensor_info.model,
+                        serial=self.__sensor_info.serial,
+                        version=self.__sensor_info.version,
+                        timestamp=datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+                        measurements=self.get_measurement().measurements)
+
+        if as_dict == True:
+            return asdict(sensor)
+
+        return sensor
 
     def close(self) -> None:
         print(f"Closing I2C bus {self.__bus}")
